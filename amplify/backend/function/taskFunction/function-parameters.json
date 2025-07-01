@@ -1,0 +1,6 @@
+{
+  "lambdaLayers": [],
+  "environmentVariables": {
+    "TASK_TABLE_NAME": "TaskTable"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-amplify-poc-dev-123456-authRole",
+      "UnauthRoleArn": "arn:aws:iam::123456789012:role/amplify-amplify-poc-dev-123456-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::123456789012:role/amplify-amplify-poc-dev-123456-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-amplify-poc-dev-123456-deployment",
+      "UnauthRoleName": "amplify-amplify-poc-dev-123456-unauthRole",
+      "StackName": "amplify-amplify-poc-dev-123456",
+      "StackId": "arn:aws:cloudformation:us-east-1:123456789012:stack/amplify-amplify-poc-dev-123456/12345678-1234-1234-1234-123456789012"
+    },
+    "categories": {
+      "function": {
+        "taskFunction": {
+          "deploymentBucketName": "amplify-amplify-poc-dev-123456-deployment",
+          "s3Key": "amplify-builds/taskFunction-123456789012-build.zip"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,500 @@
+{
+  "version": "44.0.0",
+  "artifacts": {
+    "TaskApp-dev.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "TaskApp-dev.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "TaskApp-dev": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://265613951253/us-east-1",
+      "properties": {
+        "templateFile": "TaskApp-dev.template.json",
+        "terminationProtection": false,
+        "tags": {
+          "Environment": "dev",
+          "ManagedBy": "CDK",
+          "Project": "TaskApp"
+        },
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::265613951253:role/cdk-hnb659fds-deploy-role-265613951253-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::265613951253:role/cdk-hnb659fds-cfn-exec-role-265613951253-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-265613951253-us-east-1/ecdf4ae0b7994fa4c34a0b8183a2e4735d373b920ac2a8ab40b25ed361655d0c.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "TaskApp-dev.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::265613951253:role/cdk-hnb659fds-lookup-role-265613951253-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "TaskApp-dev.assets"
+      ],
+      "metadata": {
+        "/TaskApp-dev": [
+          {
+            "type": "aws:cdk:stack-tags",
+            "data": [
+              {
+                "Key": "Environment",
+                "Value": "dev"
+              },
+              {
+                "Key": "ManagedBy",
+                "Value": "CDK"
+              },
+              {
+                "Key": "Project",
+                "Value": "TaskApp"
+              }
+            ]
+          }
+        ],
+        "/TaskApp-dev/EventBus/TaskEventBus/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventBusTaskEventBusB09EB18E"
+          }
+        ],
+        "/TaskApp-dev/EventBus/NotificationFunction/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventBusNotificationFunctionServiceRole3A2C9978"
+          }
+        ],
+        "/TaskApp-dev/EventBus/NotificationFunction/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventBusNotificationFunctionServiceRoleDefaultPolicy0BC52FF5"
+          }
+        ],
+        "/TaskApp-dev/EventBus/NotificationFunction/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventBusNotificationFunction536AC88F"
+          }
+        ],
+        "/TaskApp-dev/EventBus/NotificationFunction/EventBusInvokePermission": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventBusNotificationFunctionEventBusInvokePermission7BB8DE26"
+          }
+        ],
+        "/TaskApp-dev/EventBus/UserRegistrationRule/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventBusUserRegistrationRule017B3EC4"
+          }
+        ],
+        "/TaskApp-dev/EventBus/UserRegistrationRule/AllowEventRuleTaskAppdevEventBusNotificationFunction5247DB1C": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventBusUserRegistrationRuleAllowEventRuleTaskAppdevEventBusNotificationFunction5247DB1C7DEF2E3A"
+          }
+        ],
+        "/TaskApp-dev/EventBus/TaskCreationRule/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventBusTaskCreationRule37E3450E"
+          }
+        ],
+        "/TaskApp-dev/EventBus/TaskCreationRule/AllowEventRuleTaskAppdevEventBusNotificationFunction5247DB1C": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventBusTaskCreationRuleAllowEventRuleTaskAppdevEventBusNotificationFunction5247DB1C1AFC15C8"
+          }
+        ],
+        "/TaskApp-dev/EventBus/TaskCompletionRule/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventBusTaskCompletionRule189876BA"
+          }
+        ],
+        "/TaskApp-dev/EventBus/TaskCompletionRule/AllowEventRuleTaskAppdevEventBusNotificationFunction5247DB1C": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventBusTaskCompletionRuleAllowEventRuleTaskAppdevEventBusNotificationFunction5247DB1CB192B7AF"
+          }
+        ],
+        "/TaskApp-dev/EventBus/EventBusArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventBusEventBusArnFD6E02D1"
+          }
+        ],
+        "/TaskApp-dev/EventBus/NotificationLambdaArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EventBusNotificationLambdaArnD6563857"
+          }
+        ],
+        "/TaskApp-dev/Cognito/UserTable": [
+          {
+            "type": "aws:cdk:hasPhysicalName",
+            "data": {
+              "Ref": "CognitoUserTable7F357C62"
+            }
+          }
+        ],
+        "/TaskApp-dev/Cognito/UserTable/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoUserTable7F357C62"
+          }
+        ],
+        "/TaskApp-dev/Cognito/PostConfirmationFunction/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoPostConfirmationFunctionServiceRoleF6B20541"
+          }
+        ],
+        "/TaskApp-dev/Cognito/PostConfirmationFunction/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoPostConfirmationFunctionServiceRoleDefaultPolicy9D268F31"
+          }
+        ],
+        "/TaskApp-dev/Cognito/PostConfirmationFunction/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoPostConfirmationFunctionA4977283"
+          }
+        ],
+        "/TaskApp-dev/Cognito/UserPool/PostConfirmationCognito": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoUserPoolPostConfirmationCognitoE814E87C"
+          }
+        ],
+        "/TaskApp-dev/Cognito/UserPool/smsRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoUserPoolsmsRole738960F0"
+          }
+        ],
+        "/TaskApp-dev/Cognito/UserPool/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoUserPool279BBD48"
+          }
+        ],
+        "/TaskApp-dev/Cognito/UserPool/CognitoDomain/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoUserPoolCognitoDomain61EB4AD1"
+          }
+        ],
+        "/TaskApp-dev/Cognito/UserPool/ResourceServer/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoUserPoolResourceServer393B3BC5"
+          }
+        ],
+        "/TaskApp-dev/Cognito/UserPool/UserPoolClient/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoUserPoolUserPoolClient1E6BF456"
+          }
+        ],
+        "/TaskApp-dev/Cognito/IdentityPool": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoIdentityPool2E2E339F"
+          }
+        ],
+        "/TaskApp-dev/Cognito/AuthenticatedRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoAuthenticatedRole61C456EC"
+          }
+        ],
+        "/TaskApp-dev/Cognito/AuthenticatedRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoAuthenticatedRoleDefaultPolicyBA464B40"
+          }
+        ],
+        "/TaskApp-dev/Cognito/UnauthenticatedRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoUnauthenticatedRole81C8959B"
+          }
+        ],
+        "/TaskApp-dev/Cognito/UnauthenticatedRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoUnauthenticatedRoleDefaultPolicyC2A227EF"
+          }
+        ],
+        "/TaskApp-dev/Cognito/IdentityPoolRoleAttachment": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoIdentityPoolRoleAttachment26CFBF32"
+          }
+        ],
+        "/TaskApp-dev/Cognito/UserPoolId": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoUserPoolId622CD4B2"
+          }
+        ],
+        "/TaskApp-dev/Cognito/UserPoolClientId": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoUserPoolClientId2F6CFE90"
+          }
+        ],
+        "/TaskApp-dev/Cognito/IdentityPoolId": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoIdentityPoolId42D6FEAB"
+          }
+        ],
+        "/TaskApp-dev/Cognito/UserTableName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CognitoUserTableName647D60DB"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskTable/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApiTaskTable8901E7AD"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskFunction/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApiTaskFunctionServiceRoleF0B32085"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskFunction/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApiTaskFunctionServiceRoleDefaultPolicyFDC3171C"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskFunction/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApiTaskFunction636A3C06"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApi71A863D8"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Deployment/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApiDeployment2158AB502a636e1622d3ba1f7d65a28e25fb9406"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/DeploymentStage.prod/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApiDeploymentStageprod9DED2229"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Endpoint": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApiEndpoint8534BABA"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/OPTIONS/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApiOPTIONS0ACA4B00"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitasks5FAFDD7C"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/OPTIONS/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitasksOPTIONSC6C1B216"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/GET/ApiPermission.TaskAppdevTaskApi99CF8C66.GET..tasks": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitasksGETApiPermissionTaskAppdevTaskApi99CF8C66GETtasksC2A5D2C7"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/GET/ApiPermission.Test.TaskAppdevTaskApi99CF8C66.GET..tasks": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitasksGETApiPermissionTestTaskAppdevTaskApi99CF8C66GETtasks16D76E10"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/GET/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitasksGETA1D6DEE7"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/POST/ApiPermission.TaskAppdevTaskApi99CF8C66.POST..tasks": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitasksPOSTApiPermissionTaskAppdevTaskApi99CF8C66POSTtasksFC707E0D"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/POST/ApiPermission.Test.TaskAppdevTaskApi99CF8C66.POST..tasks": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitasksPOSTApiPermissionTestTaskAppdevTaskApi99CF8C66POSTtasksE1122D1E"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/POST/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitasksPOST0D0523E7"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitaskstaskIdD8486894"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/OPTIONS/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitaskstaskIdOPTIONS3580BD79"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/GET/ApiPermission.TaskAppdevTaskApi99CF8C66.GET..tasks.{taskId}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitaskstaskIdGETApiPermissionTaskAppdevTaskApi99CF8C66GETtaskstaskIdC9746B78"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/GET/ApiPermission.Test.TaskAppdevTaskApi99CF8C66.GET..tasks.{taskId}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitaskstaskIdGETApiPermissionTestTaskAppdevTaskApi99CF8C66GETtaskstaskId51AFDD0B"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/GET/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitaskstaskIdGETD2DAD53E"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/PUT/ApiPermission.TaskAppdevTaskApi99CF8C66.PUT..tasks.{taskId}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitaskstaskIdPUTApiPermissionTaskAppdevTaskApi99CF8C66PUTtaskstaskIdCA3D3061"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/PUT/ApiPermission.Test.TaskAppdevTaskApi99CF8C66.PUT..tasks.{taskId}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitaskstaskIdPUTApiPermissionTestTaskAppdevTaskApi99CF8C66PUTtaskstaskId979B5DF6"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/PUT/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitaskstaskIdPUT38D3992A"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/DELETE/ApiPermission.TaskAppdevTaskApi99CF8C66.DELETE..tasks.{taskId}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitaskstaskIdDELETEApiPermissionTaskAppdevTaskApi99CF8C66DELETEtaskstaskIdD90F2239"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/DELETE/ApiPermission.Test.TaskAppdevTaskApi99CF8C66.DELETE..tasks.{taskId}": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitaskstaskIdDELETEApiPermissionTestTaskAppdevTaskApi99CF8C66DELETEtaskstaskId5FEEED60"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/DELETE/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitaskstaskIdDELETE0FB4B996"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/complete/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitaskstaskIdcomplete6CC5C6E0"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/complete/OPTIONS/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitaskstaskIdcompleteOPTIONSBDFFA9A1"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/complete/PATCH/ApiPermission.TaskAppdevTaskApi99CF8C66.PATCH..tasks.{taskId}.complete": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitaskstaskIdcompletePATCHApiPermissionTaskAppdevTaskApi99CF8C66PATCHtaskstaskIdcompleteFF816E11"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/complete/PATCH/ApiPermission.Test.TaskAppdevTaskApi99CF8C66.PATCH..tasks.{taskId}.complete": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitaskstaskIdcompletePATCHApiPermissionTestTaskAppdevTaskApi99CF8C66PATCHtaskstaskIdcomplete2CC406BA"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/complete/PATCH/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApitaskstaskIdcompletePATCHDDB74851"
+          }
+        ],
+        "/TaskApp-dev/TaskApi/TaskApiAuthorizer/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TaskApiTaskApiAuthorizer9B560BAB"
+          }
+        ],
+        "/TaskApp-dev/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/TaskApp-dev/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/TaskApp-dev/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "TaskApp-dev"
+    },
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    }
+  },
+  "minimumCliVersion": "2.1019.1"
+}

@@ -1,0 +1,2052 @@
+{
+ "Description": "Task Application Stack (dev)",
+ "Resources": {
+  "EventBusTaskEventBusB09EB18E": {
+   "Type": "AWS::Events::EventBus",
+   "Properties": {
+    "Name": "task-event-bus-dev"
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/EventBus/TaskEventBus/Resource"
+   }
+  },
+  "EventBusNotificationFunctionServiceRole3A2C9978": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/EventBus/NotificationFunction/ServiceRole/Resource"
+   }
+  },
+  "EventBusNotificationFunctionServiceRoleDefaultPolicy0BC52FF5": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ses:SendEmail",
+        "ses:SendRawEmail",
+        "ses:SendTemplatedEmail"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "EventBusNotificationFunctionServiceRoleDefaultPolicy0BC52FF5",
+    "Roles": [
+     {
+      "Ref": "EventBusNotificationFunctionServiceRole3A2C9978"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/EventBus/NotificationFunction/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "EventBusNotificationFunction536AC88F": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-265613951253-us-east-1",
+     "S3Key": "ef76b0d3879fe62cb70f63ba7ee5e1de5eca159a5910c3c5ed4dba7eeae5fe06.zip"
+    },
+    "Description": "Lambda function to process notification events and send emails",
+    "Environment": {
+     "Variables": {
+      "ENVIRONMENT": "dev",
+      "REGION": "us-east-1",
+      "DEFAULT_SENDER": "noreply@taskapp-dev.com"
+     }
+    },
+    "Handler": "notificationFunction.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "EventBusNotificationFunctionServiceRole3A2C9978",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs18.x",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "EventBusNotificationFunctionServiceRoleDefaultPolicy0BC52FF5",
+    "EventBusNotificationFunctionServiceRole3A2C9978"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/EventBus/NotificationFunction/Resource",
+    "aws:asset:path": "asset.ef76b0d3879fe62cb70f63ba7ee5e1de5eca159a5910c3c5ed4dba7eeae5fe06",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "EventBusNotificationFunctionEventBusInvokePermission7BB8DE26": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "EventBusNotificationFunction536AC88F",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "EventBusTaskEventBusB09EB18E",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/EventBus/NotificationFunction/EventBusInvokePermission"
+   }
+  },
+  "EventBusUserRegistrationRule017B3EC4": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Rule to capture user registration events",
+    "EventBusName": {
+     "Ref": "EventBusTaskEventBusB09EB18E"
+    },
+    "EventPattern": {
+     "source": [
+      "com.taskapp.auth"
+     ],
+     "detail-type": [
+      "UserRegistration"
+     ]
+    },
+    "Name": "user-registration-rule-dev",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "EventBusNotificationFunction536AC88F",
+        "Arn"
+       ]
+      },
+      "Id": "Target0"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/EventBus/UserRegistrationRule/Resource"
+   }
+  },
+  "EventBusUserRegistrationRuleAllowEventRuleTaskAppdevEventBusNotificationFunction5247DB1C7DEF2E3A": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "EventBusNotificationFunction536AC88F",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "EventBusUserRegistrationRule017B3EC4",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/EventBus/UserRegistrationRule/AllowEventRuleTaskAppdevEventBusNotificationFunction5247DB1C"
+   }
+  },
+  "EventBusTaskCreationRule37E3450E": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Rule to capture task creation events",
+    "EventBusName": {
+     "Ref": "EventBusTaskEventBusB09EB18E"
+    },
+    "EventPattern": {
+     "source": [
+      "com.taskapp.tasks"
+     ],
+     "detail-type": [
+      "TaskCreation"
+     ]
+    },
+    "Name": "task-creation-rule-dev",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "EventBusNotificationFunction536AC88F",
+        "Arn"
+       ]
+      },
+      "Id": "Target0"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/EventBus/TaskCreationRule/Resource"
+   }
+  },
+  "EventBusTaskCreationRuleAllowEventRuleTaskAppdevEventBusNotificationFunction5247DB1C1AFC15C8": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "EventBusNotificationFunction536AC88F",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "EventBusTaskCreationRule37E3450E",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/EventBus/TaskCreationRule/AllowEventRuleTaskAppdevEventBusNotificationFunction5247DB1C"
+   }
+  },
+  "EventBusTaskCompletionRule189876BA": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Rule to capture task completion events",
+    "EventBusName": {
+     "Ref": "EventBusTaskEventBusB09EB18E"
+    },
+    "EventPattern": {
+     "source": [
+      "com.taskapp.tasks"
+     ],
+     "detail-type": [
+      "TaskCompletion"
+     ]
+    },
+    "Name": "task-completion-rule-dev",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "EventBusNotificationFunction536AC88F",
+        "Arn"
+       ]
+      },
+      "Id": "Target0"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/EventBus/TaskCompletionRule/Resource"
+   }
+  },
+  "EventBusTaskCompletionRuleAllowEventRuleTaskAppdevEventBusNotificationFunction5247DB1CB192B7AF": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "EventBusNotificationFunction536AC88F",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "EventBusTaskCompletionRule189876BA",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/EventBus/TaskCompletionRule/AllowEventRuleTaskAppdevEventBusNotificationFunction5247DB1C"
+   }
+  },
+  "CognitoUserTable7F357C62": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "userId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "email",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "GlobalSecondaryIndexes": [
+     {
+      "IndexName": "EmailIndex",
+      "KeySchema": [
+       {
+        "AttributeName": "email",
+        "KeyType": "HASH"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     }
+    ],
+    "KeySchema": [
+     {
+      "AttributeName": "userId",
+      "KeyType": "HASH"
+     }
+    ],
+    "PointInTimeRecoverySpecification": {
+     "PointInTimeRecoveryEnabled": true
+    },
+    "TableName": "TaskApp-Users-dev"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/Cognito/UserTable/Resource"
+   }
+  },
+  "CognitoPostConfirmationFunctionServiceRoleF6B20541": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/Cognito/PostConfirmationFunction/ServiceRole/Resource"
+   }
+  },
+  "CognitoPostConfirmationFunctionServiceRoleDefaultPolicy9D268F31": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:UpdateItem"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "CognitoUserTable7F357C62",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "CognitoUserTable7F357C62",
+             "Arn"
+            ]
+           },
+           "/index/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "ses:SendEmail",
+        "ses:SendRawEmail"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": "events:PutEvents",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:aws:events:us-east-1:265613951253:event-bus/",
+          {
+           "Ref": "EventBusTaskEventBusB09EB18E"
+          }
+         ]
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "CognitoPostConfirmationFunctionServiceRoleDefaultPolicy9D268F31",
+    "Roles": [
+     {
+      "Ref": "CognitoPostConfirmationFunctionServiceRoleF6B20541"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/Cognito/PostConfirmationFunction/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "CognitoPostConfirmationFunctionA4977283": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-265613951253-us-east-1",
+     "S3Key": "44bc3cd203276ac8050aa00a4bcaabf4c9f6f84ae6ddaeaa7aa84521578bbaaf.zip"
+    },
+    "Description": "Handles post confirmation actions for Cognito users",
+    "Environment": {
+     "Variables": {
+      "USER_TABLE_NAME": {
+       "Ref": "CognitoUserTable7F357C62"
+      },
+      "EVENT_BUS_NAME": {
+       "Ref": "EventBusTaskEventBusB09EB18E"
+      },
+      "REGION": "us-east-1",
+      "FROM_EMAIL": "no-reply@yourdomain.com"
+     }
+    },
+    "Handler": "postConfirmationFunction.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CognitoPostConfirmationFunctionServiceRoleF6B20541",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs18.x",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "CognitoPostConfirmationFunctionServiceRoleDefaultPolicy9D268F31",
+    "CognitoPostConfirmationFunctionServiceRoleF6B20541"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/Cognito/PostConfirmationFunction/Resource",
+    "aws:asset:path": "asset.44bc3cd203276ac8050aa00a4bcaabf4c9f6f84ae6ddaeaa7aa84521578bbaaf.zip",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "CognitoUserPoolPostConfirmationCognitoE814E87C": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "CognitoPostConfirmationFunctionA4977283",
+      "Arn"
+     ]
+    },
+    "Principal": "cognito-idp.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "CognitoUserPool279BBD48",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/Cognito/UserPool/PostConfirmationCognito"
+   }
+  },
+  "CognitoUserPoolsmsRole738960F0": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Condition": {
+        "StringEquals": {
+         "sts:ExternalId": "TaskAppdevCognitoUserPoolFC9349F2"
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "cognito-idp.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Policies": [
+     {
+      "PolicyDocument": {
+       "Statement": [
+        {
+         "Action": "sns:Publish",
+         "Effect": "Allow",
+         "Resource": "*"
+        }
+       ],
+       "Version": "2012-10-17"
+      },
+      "PolicyName": "sns-publish"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/Cognito/UserPool/smsRole/Resource"
+   }
+  },
+  "CognitoUserPool279BBD48": {
+   "Type": "AWS::Cognito::UserPool",
+   "Properties": {
+    "AccountRecoverySetting": {
+     "RecoveryMechanisms": [
+      {
+       "Name": "verified_phone_number",
+       "Priority": 1
+      },
+      {
+       "Name": "verified_email",
+       "Priority": 2
+      }
+     ]
+    },
+    "AdminCreateUserConfig": {
+     "AllowAdminCreateUserOnly": false
+    },
+    "AliasAttributes": [
+     "email",
+     "phone_number"
+    ],
+    "AutoVerifiedAttributes": [
+     "email"
+    ],
+    "EmailVerificationMessage": "Thank you for signing up to TaskApp! Your verification code is {####}",
+    "EmailVerificationSubject": "Verify your email for TaskApp",
+    "EnabledMfas": [
+     "SMS_MFA",
+     "SOFTWARE_TOKEN_MFA"
+    ],
+    "LambdaConfig": {
+     "PostConfirmation": {
+      "Fn::GetAtt": [
+       "CognitoPostConfirmationFunctionA4977283",
+       "Arn"
+      ]
+     }
+    },
+    "MfaConfiguration": "OPTIONAL",
+    "Policies": {
+     "PasswordPolicy": {
+      "MinimumLength": 12,
+      "PasswordHistorySize": 12,
+      "RequireLowercase": true,
+      "RequireNumbers": true,
+      "RequireSymbols": true,
+      "RequireUppercase": true,
+      "TemporaryPasswordValidityDays": 1
+     }
+    },
+    "Schema": [
+     {
+      "Mutable": true,
+      "Name": "email",
+      "Required": true
+     },
+     {
+      "Mutable": true,
+      "Name": "phone_number",
+      "Required": true
+     }
+    ],
+    "SmsConfiguration": {
+     "ExternalId": "TaskAppdevCognitoUserPoolFC9349F2",
+     "SnsCallerArn": {
+      "Fn::GetAtt": [
+       "CognitoUserPoolsmsRole738960F0",
+       "Arn"
+      ]
+     }
+    },
+    "SmsVerificationMessage": "The verification code to your new account is {####}",
+    "UserPoolAddOns": {
+     "AdvancedSecurityMode": "ENFORCED"
+    },
+    "UserPoolName": "TaskApp-UserPool-dev",
+    "UsernameConfiguration": {
+     "CaseSensitive": true
+    },
+    "VerificationMessageTemplate": {
+     "DefaultEmailOption": "CONFIRM_WITH_CODE",
+     "EmailMessage": "Thank you for signing up to TaskApp! Your verification code is {####}",
+     "EmailSubject": "Verify your email for TaskApp",
+     "SmsMessage": "The verification code to your new account is {####}"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/Cognito/UserPool/Resource"
+   }
+  },
+  "CognitoUserPoolCognitoDomain61EB4AD1": {
+   "Type": "AWS::Cognito::UserPoolDomain",
+   "Properties": {
+    "Domain": "taskapp-dev-26561395",
+    "UserPoolId": {
+     "Ref": "CognitoUserPool279BBD48"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/Cognito/UserPool/CognitoDomain/Resource"
+   }
+  },
+  "CognitoUserPoolResourceServer393B3BC5": {
+   "Type": "AWS::Cognito::UserPoolResourceServer",
+   "Properties": {
+    "Identifier": "taskapp",
+    "Name": "taskapp",
+    "Scopes": [
+     {
+      "ScopeDescription": "Read access",
+      "ScopeName": "read"
+     },
+     {
+      "ScopeDescription": "Write access",
+      "ScopeName": "write"
+     }
+    ],
+    "UserPoolId": {
+     "Ref": "CognitoUserPool279BBD48"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/Cognito/UserPool/ResourceServer/Resource"
+   }
+  },
+  "CognitoUserPoolUserPoolClient1E6BF456": {
+   "Type": "AWS::Cognito::UserPoolClient",
+   "Properties": {
+    "AccessTokenValidity": 60,
+    "AllowedOAuthFlows": [
+     "implicit",
+     "code"
+    ],
+    "AllowedOAuthFlowsUserPoolClient": true,
+    "AllowedOAuthScopes": [
+     "email",
+     "phone",
+     "openid",
+     "profile"
+    ],
+    "CallbackURLs": [
+     "http://localhost:3000/callback"
+    ],
+    "ClientName": "TaskApp-Client-dev",
+    "EnableTokenRevocation": true,
+    "ExplicitAuthFlows": [
+     "ALLOW_USER_PASSWORD_AUTH",
+     "ALLOW_ADMIN_USER_PASSWORD_AUTH",
+     "ALLOW_CUSTOM_AUTH",
+     "ALLOW_USER_SRP_AUTH",
+     "ALLOW_REFRESH_TOKEN_AUTH"
+    ],
+    "IdTokenValidity": 60,
+    "LogoutURLs": [
+     "http://localhost:3000/logout"
+    ],
+    "PreventUserExistenceErrors": "ENABLED",
+    "RefreshTokenValidity": 43200,
+    "SupportedIdentityProviders": [
+     "COGNITO"
+    ],
+    "TokenValidityUnits": {
+     "AccessToken": "minutes",
+     "IdToken": "minutes",
+     "RefreshToken": "minutes"
+    },
+    "UserPoolId": {
+     "Ref": "CognitoUserPool279BBD48"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/Cognito/UserPool/UserPoolClient/Resource"
+   }
+  },
+  "CognitoIdentityPool2E2E339F": {
+   "Type": "AWS::Cognito::IdentityPool",
+   "Properties": {
+    "AllowUnauthenticatedIdentities": false,
+    "CognitoIdentityProviders": [
+     {
+      "ClientId": {
+       "Ref": "CognitoUserPoolUserPoolClient1E6BF456"
+      },
+      "ProviderName": {
+       "Fn::GetAtt": [
+        "CognitoUserPool279BBD48",
+        "ProviderName"
+       ]
+      }
+     }
+    ],
+    "IdentityPoolName": "TaskApp-IdentityPool-dev"
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/Cognito/IdentityPool"
+   }
+  },
+  "CognitoAuthenticatedRole61C456EC": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRoleWithWebIdentity",
+       "Condition": {
+        "StringEquals": {
+         "cognito-identity.amazonaws.com:aud": {
+          "Ref": "CognitoIdentityPool2E2E339F"
+         }
+        },
+        "ForAnyValue:StringLike": {
+         "cognito-identity.amazonaws.com:amr": "authenticated"
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "Federated": "cognito-identity.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/Cognito/AuthenticatedRole/Resource"
+   }
+  },
+  "CognitoAuthenticatedRoleDefaultPolicyBA464B40": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "cognito-sync:*",
+        "mobileanalytics:PutEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "CognitoAuthenticatedRoleDefaultPolicyBA464B40",
+    "Roles": [
+     {
+      "Ref": "CognitoAuthenticatedRole61C456EC"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/Cognito/AuthenticatedRole/DefaultPolicy/Resource"
+   }
+  },
+  "CognitoUnauthenticatedRole81C8959B": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRoleWithWebIdentity",
+       "Condition": {
+        "StringEquals": {
+         "cognito-identity.amazonaws.com:aud": {
+          "Ref": "CognitoIdentityPool2E2E339F"
+         }
+        },
+        "ForAnyValue:StringLike": {
+         "cognito-identity.amazonaws.com:amr": "unauthenticated"
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "Federated": "cognito-identity.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/Cognito/UnauthenticatedRole/Resource"
+   }
+  },
+  "CognitoUnauthenticatedRoleDefaultPolicyC2A227EF": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "cognito-sync:*",
+        "mobileanalytics:PutEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "CognitoUnauthenticatedRoleDefaultPolicyC2A227EF",
+    "Roles": [
+     {
+      "Ref": "CognitoUnauthenticatedRole81C8959B"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/Cognito/UnauthenticatedRole/DefaultPolicy/Resource"
+   }
+  },
+  "CognitoIdentityPoolRoleAttachment26CFBF32": {
+   "Type": "AWS::Cognito::IdentityPoolRoleAttachment",
+   "Properties": {
+    "IdentityPoolId": {
+     "Ref": "CognitoIdentityPool2E2E339F"
+    },
+    "Roles": {
+     "authenticated": {
+      "Fn::GetAtt": [
+       "CognitoAuthenticatedRole61C456EC",
+       "Arn"
+      ]
+     },
+     "unauthenticated": {
+      "Fn::GetAtt": [
+       "CognitoUnauthenticatedRole81C8959B",
+       "Arn"
+      ]
+     }
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/Cognito/IdentityPoolRoleAttachment"
+   }
+  },
+  "TaskApiTaskTable8901E7AD": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "id",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskTable/Resource"
+   }
+  },
+  "TaskApiTaskFunctionServiceRoleF0B32085": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskFunction/ServiceRole/Resource"
+   }
+  },
+  "TaskApiTaskFunctionServiceRoleDefaultPolicyFDC3171C": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:UpdateItem"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "TaskApiTaskTable8901E7AD",
+          "Arn"
+         ]
+        },
+        {
+         "Ref": "AWS::NoValue"
+        }
+       ]
+      },
+      {
+       "Action": "events:PutEvents",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "EventBusTaskEventBusB09EB18E",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "TaskApiTaskFunctionServiceRoleDefaultPolicyFDC3171C",
+    "Roles": [
+     {
+      "Ref": "TaskApiTaskFunctionServiceRoleF0B32085"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskFunction/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "TaskApiTaskFunction636A3C06": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-265613951253-us-east-1",
+     "S3Key": "44bc3cd203276ac8050aa00a4bcaabf4c9f6f84ae6ddaeaa7aa84521578bbaaf.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "TASK_TABLE_NAME": {
+       "Ref": "TaskApiTaskTable8901E7AD"
+      },
+      "REGION": "us-east-1",
+      "ENVIRONMENT": "dev",
+      "EVENT_BUS_NAME": {
+       "Ref": "EventBusTaskEventBusB09EB18E"
+      },
+      "USER_POOL_ID": {
+       "Ref": "CognitoUserPool279BBD48"
+      }
+     }
+    },
+    "Handler": "taskFunction.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "TaskApiTaskFunctionServiceRoleF0B32085",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs18.x"
+   },
+   "DependsOn": [
+    "TaskApiTaskFunctionServiceRoleDefaultPolicyFDC3171C",
+    "TaskApiTaskFunctionServiceRoleF0B32085"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskFunction/Resource",
+    "aws:asset:path": "asset.44bc3cd203276ac8050aa00a4bcaabf4c9f6f84ae6ddaeaa7aa84521578bbaaf.zip",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "TaskApi71A863D8": {
+   "Type": "AWS::ApiGateway::RestApi",
+   "Properties": {
+    "Description": "API for task operations",
+    "Name": "Task API"
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Resource"
+   }
+  },
+  "TaskApiDeployment2158AB502a636e1622d3ba1f7d65a28e25fb9406": {
+   "Type": "AWS::ApiGateway::Deployment",
+   "Properties": {
+    "Description": "API for task operations",
+    "RestApiId": {
+     "Ref": "TaskApi71A863D8"
+    }
+   },
+   "DependsOn": [
+    "TaskApiOPTIONS0ACA4B00",
+    "TaskApitaskstaskIdcompleteOPTIONSBDFFA9A1",
+    "TaskApitaskstaskIdcompletePATCHDDB74851",
+    "TaskApitaskstaskIdcomplete6CC5C6E0",
+    "TaskApitaskstaskIdDELETE0FB4B996",
+    "TaskApitaskstaskIdGETD2DAD53E",
+    "TaskApitaskstaskIdOPTIONS3580BD79",
+    "TaskApitaskstaskIdPUT38D3992A",
+    "TaskApitaskstaskIdD8486894",
+    "TaskApitasksGETA1D6DEE7",
+    "TaskApitasksOPTIONSC6C1B216",
+    "TaskApitasksPOST0D0523E7",
+    "TaskApitasks5FAFDD7C"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Deployment/Resource",
+    "aws:cdk:do-not-refactor": true
+   }
+  },
+  "TaskApiDeploymentStageprod9DED2229": {
+   "Type": "AWS::ApiGateway::Stage",
+   "Properties": {
+    "DeploymentId": {
+     "Ref": "TaskApiDeployment2158AB502a636e1622d3ba1f7d65a28e25fb9406"
+    },
+    "RestApiId": {
+     "Ref": "TaskApi71A863D8"
+    },
+    "StageName": "prod"
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/DeploymentStage.prod/Resource"
+   }
+  },
+  "TaskApiOPTIONS0ACA4B00": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Fn::GetAtt": [
+      "TaskApi71A863D8",
+      "RootResourceId"
+     ]
+    },
+    "RestApiId": {
+     "Ref": "TaskApi71A863D8"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/OPTIONS/Resource"
+   }
+  },
+  "TaskApitasks5FAFDD7C": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "TaskApi71A863D8",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "tasks",
+    "RestApiId": {
+     "Ref": "TaskApi71A863D8"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/Resource"
+   }
+  },
+  "TaskApitasksOPTIONSC6C1B216": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "TaskApitasks5FAFDD7C"
+    },
+    "RestApiId": {
+     "Ref": "TaskApi71A863D8"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/OPTIONS/Resource"
+   }
+  },
+  "TaskApitasksGETApiPermissionTaskAppdevTaskApi99CF8C66GETtasksC2A5D2C7": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "TaskApiTaskFunction636A3C06",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:265613951253:",
+       {
+        "Ref": "TaskApi71A863D8"
+       },
+       "/",
+       {
+        "Ref": "TaskApiDeploymentStageprod9DED2229"
+       },
+       "/GET/tasks"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/GET/ApiPermission.TaskAppdevTaskApi99CF8C66.GET..tasks"
+   }
+  },
+  "TaskApitasksGETApiPermissionTestTaskAppdevTaskApi99CF8C66GETtasks16D76E10": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "TaskApiTaskFunction636A3C06",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:265613951253:",
+       {
+        "Ref": "TaskApi71A863D8"
+       },
+       "/test-invoke-stage/GET/tasks"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/GET/ApiPermission.Test.TaskAppdevTaskApi99CF8C66.GET..tasks"
+   }
+  },
+  "TaskApitasksGETA1D6DEE7": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "COGNITO_USER_POOLS",
+    "AuthorizerId": {
+     "Ref": "TaskApiTaskApiAuthorizer9B560BAB"
+    },
+    "HttpMethod": "GET",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "TaskApiTaskFunction636A3C06",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "TaskApitasks5FAFDD7C"
+    },
+    "RestApiId": {
+     "Ref": "TaskApi71A863D8"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/GET/Resource"
+   }
+  },
+  "TaskApitasksPOSTApiPermissionTaskAppdevTaskApi99CF8C66POSTtasksFC707E0D": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "TaskApiTaskFunction636A3C06",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:265613951253:",
+       {
+        "Ref": "TaskApi71A863D8"
+       },
+       "/",
+       {
+        "Ref": "TaskApiDeploymentStageprod9DED2229"
+       },
+       "/POST/tasks"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/POST/ApiPermission.TaskAppdevTaskApi99CF8C66.POST..tasks"
+   }
+  },
+  "TaskApitasksPOSTApiPermissionTestTaskAppdevTaskApi99CF8C66POSTtasksE1122D1E": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "TaskApiTaskFunction636A3C06",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:265613951253:",
+       {
+        "Ref": "TaskApi71A863D8"
+       },
+       "/test-invoke-stage/POST/tasks"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/POST/ApiPermission.Test.TaskAppdevTaskApi99CF8C66.POST..tasks"
+   }
+  },
+  "TaskApitasksPOST0D0523E7": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "COGNITO_USER_POOLS",
+    "AuthorizerId": {
+     "Ref": "TaskApiTaskApiAuthorizer9B560BAB"
+    },
+    "HttpMethod": "POST",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "TaskApiTaskFunction636A3C06",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "TaskApitasks5FAFDD7C"
+    },
+    "RestApiId": {
+     "Ref": "TaskApi71A863D8"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/POST/Resource"
+   }
+  },
+  "TaskApitaskstaskIdD8486894": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Ref": "TaskApitasks5FAFDD7C"
+    },
+    "PathPart": "{taskId}",
+    "RestApiId": {
+     "Ref": "TaskApi71A863D8"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/Resource"
+   }
+  },
+  "TaskApitaskstaskIdOPTIONS3580BD79": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "TaskApitaskstaskIdD8486894"
+    },
+    "RestApiId": {
+     "Ref": "TaskApi71A863D8"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/OPTIONS/Resource"
+   }
+  },
+  "TaskApitaskstaskIdGETApiPermissionTaskAppdevTaskApi99CF8C66GETtaskstaskIdC9746B78": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "TaskApiTaskFunction636A3C06",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:265613951253:",
+       {
+        "Ref": "TaskApi71A863D8"
+       },
+       "/",
+       {
+        "Ref": "TaskApiDeploymentStageprod9DED2229"
+       },
+       "/GET/tasks/*"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/GET/ApiPermission.TaskAppdevTaskApi99CF8C66.GET..tasks.{taskId}"
+   }
+  },
+  "TaskApitaskstaskIdGETApiPermissionTestTaskAppdevTaskApi99CF8C66GETtaskstaskId51AFDD0B": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "TaskApiTaskFunction636A3C06",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:265613951253:",
+       {
+        "Ref": "TaskApi71A863D8"
+       },
+       "/test-invoke-stage/GET/tasks/*"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/GET/ApiPermission.Test.TaskAppdevTaskApi99CF8C66.GET..tasks.{taskId}"
+   }
+  },
+  "TaskApitaskstaskIdGETD2DAD53E": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "COGNITO_USER_POOLS",
+    "AuthorizerId": {
+     "Ref": "TaskApiTaskApiAuthorizer9B560BAB"
+    },
+    "HttpMethod": "GET",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "TaskApiTaskFunction636A3C06",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "TaskApitaskstaskIdD8486894"
+    },
+    "RestApiId": {
+     "Ref": "TaskApi71A863D8"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/GET/Resource"
+   }
+  },
+  "TaskApitaskstaskIdPUTApiPermissionTaskAppdevTaskApi99CF8C66PUTtaskstaskIdCA3D3061": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "TaskApiTaskFunction636A3C06",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:265613951253:",
+       {
+        "Ref": "TaskApi71A863D8"
+       },
+       "/",
+       {
+        "Ref": "TaskApiDeploymentStageprod9DED2229"
+       },
+       "/PUT/tasks/*"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/PUT/ApiPermission.TaskAppdevTaskApi99CF8C66.PUT..tasks.{taskId}"
+   }
+  },
+  "TaskApitaskstaskIdPUTApiPermissionTestTaskAppdevTaskApi99CF8C66PUTtaskstaskId979B5DF6": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "TaskApiTaskFunction636A3C06",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:265613951253:",
+       {
+        "Ref": "TaskApi71A863D8"
+       },
+       "/test-invoke-stage/PUT/tasks/*"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/PUT/ApiPermission.Test.TaskAppdevTaskApi99CF8C66.PUT..tasks.{taskId}"
+   }
+  },
+  "TaskApitaskstaskIdPUT38D3992A": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "COGNITO_USER_POOLS",
+    "AuthorizerId": {
+     "Ref": "TaskApiTaskApiAuthorizer9B560BAB"
+    },
+    "HttpMethod": "PUT",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "TaskApiTaskFunction636A3C06",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "TaskApitaskstaskIdD8486894"
+    },
+    "RestApiId": {
+     "Ref": "TaskApi71A863D8"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/PUT/Resource"
+   }
+  },
+  "TaskApitaskstaskIdDELETEApiPermissionTaskAppdevTaskApi99CF8C66DELETEtaskstaskIdD90F2239": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "TaskApiTaskFunction636A3C06",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:265613951253:",
+       {
+        "Ref": "TaskApi71A863D8"
+       },
+       "/",
+       {
+        "Ref": "TaskApiDeploymentStageprod9DED2229"
+       },
+       "/DELETE/tasks/*"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/DELETE/ApiPermission.TaskAppdevTaskApi99CF8C66.DELETE..tasks.{taskId}"
+   }
+  },
+  "TaskApitaskstaskIdDELETEApiPermissionTestTaskAppdevTaskApi99CF8C66DELETEtaskstaskId5FEEED60": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "TaskApiTaskFunction636A3C06",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:265613951253:",
+       {
+        "Ref": "TaskApi71A863D8"
+       },
+       "/test-invoke-stage/DELETE/tasks/*"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/DELETE/ApiPermission.Test.TaskAppdevTaskApi99CF8C66.DELETE..tasks.{taskId}"
+   }
+  },
+  "TaskApitaskstaskIdDELETE0FB4B996": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "COGNITO_USER_POOLS",
+    "AuthorizerId": {
+     "Ref": "TaskApiTaskApiAuthorizer9B560BAB"
+    },
+    "HttpMethod": "DELETE",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "TaskApiTaskFunction636A3C06",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "TaskApitaskstaskIdD8486894"
+    },
+    "RestApiId": {
+     "Ref": "TaskApi71A863D8"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/DELETE/Resource"
+   }
+  },
+  "TaskApitaskstaskIdcomplete6CC5C6E0": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Ref": "TaskApitaskstaskIdD8486894"
+    },
+    "PathPart": "complete",
+    "RestApiId": {
+     "Ref": "TaskApi71A863D8"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/complete/Resource"
+   }
+  },
+  "TaskApitaskstaskIdcompleteOPTIONSBDFFA9A1": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "TaskApitaskstaskIdcomplete6CC5C6E0"
+    },
+    "RestApiId": {
+     "Ref": "TaskApi71A863D8"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/complete/OPTIONS/Resource"
+   }
+  },
+  "TaskApitaskstaskIdcompletePATCHApiPermissionTaskAppdevTaskApi99CF8C66PATCHtaskstaskIdcompleteFF816E11": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "TaskApiTaskFunction636A3C06",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:265613951253:",
+       {
+        "Ref": "TaskApi71A863D8"
+       },
+       "/",
+       {
+        "Ref": "TaskApiDeploymentStageprod9DED2229"
+       },
+       "/PATCH/tasks/*/complete"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/complete/PATCH/ApiPermission.TaskAppdevTaskApi99CF8C66.PATCH..tasks.{taskId}.complete"
+   }
+  },
+  "TaskApitaskstaskIdcompletePATCHApiPermissionTestTaskAppdevTaskApi99CF8C66PATCHtaskstaskIdcomplete2CC406BA": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "TaskApiTaskFunction636A3C06",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:265613951253:",
+       {
+        "Ref": "TaskApi71A863D8"
+       },
+       "/test-invoke-stage/PATCH/tasks/*/complete"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/complete/PATCH/ApiPermission.Test.TaskAppdevTaskApi99CF8C66.PATCH..tasks.{taskId}.complete"
+   }
+  },
+  "TaskApitaskstaskIdcompletePATCHDDB74851": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "COGNITO_USER_POOLS",
+    "AuthorizerId": {
+     "Ref": "TaskApiTaskApiAuthorizer9B560BAB"
+    },
+    "HttpMethod": "PATCH",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "TaskApiTaskFunction636A3C06",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "TaskApitaskstaskIdcomplete6CC5C6E0"
+    },
+    "RestApiId": {
+     "Ref": "TaskApi71A863D8"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApi/Default/tasks/{taskId}/complete/PATCH/Resource"
+   }
+  },
+  "TaskApiTaskApiAuthorizer9B560BAB": {
+   "Type": "AWS::ApiGateway::Authorizer",
+   "Properties": {
+    "IdentitySource": "method.request.header.Authorization",
+    "Name": "TaskApiCognitoAuthorizer",
+    "ProviderARNs": [
+     {
+      "Fn::GetAtt": [
+       "CognitoUserPool279BBD48",
+       "Arn"
+      ]
+     }
+    ],
+    "RestApiId": {
+     "Ref": "TaskApi71A863D8"
+    },
+    "Type": "COGNITO_USER_POOLS"
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/TaskApi/TaskApiAuthorizer/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/12R3W7CMAyFn4X7kEF5ggKbtItpqGzXKG29YmiSqnZAXZR3n9IfqHZ1Pvs4juMkMlklcrVQd1oW5XVZYy79kVVxFepOJw83MEzSv0bdOhK7H/PgzNUQE1GDqJXOSyX9mzMFozXRmfMBWo1EaE0QqLT0mR2PRz3YGouur+spCNqcFBEwyTSKoI3cuuIKvFUEouyM0rbMpf9S+dCnhyAKWxlkK/03QXuwto7egyfYW63QzK0xM4UZkHVtAUdob9DOC/85U3pXIxieFz4z7yUYRu6mceZxfH7KrIqzBsNBqAYrxXBXnfQZEKcN9lsacQ9NbTs9Np5FR1ZVv4cBpin7bX0An20ZzZEmd+w88rC5aXxKHZ9ti7/D859RCM/z/d/EG9FUserTceM4CGNLkBd6uSUruV7L9eJCiMvWGUYNMhv0D3VywmR+AgAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "TaskApp-dev/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "EventBusEventBusArnFD6E02D1": {
+   "Description": "ARN of the Event Bus",
+   "Value": {
+    "Fn::GetAtt": [
+     "EventBusTaskEventBusB09EB18E",
+     "Arn"
+    ]
+   }
+  },
+  "EventBusNotificationLambdaArnD6563857": {
+   "Description": "ARN of the Notification Lambda",
+   "Value": {
+    "Fn::GetAtt": [
+     "EventBusNotificationFunction536AC88F",
+     "Arn"
+    ]
+   }
+  },
+  "CognitoUserPoolId622CD4B2": {
+   "Description": "The ID of the User Pool",
+   "Value": {
+    "Ref": "CognitoUserPool279BBD48"
+   }
+  },
+  "CognitoUserPoolClientId2F6CFE90": {
+   "Description": "The ID of the User Pool Client",
+   "Value": {
+    "Ref": "CognitoUserPoolUserPoolClient1E6BF456"
+   }
+  },
+  "CognitoIdentityPoolId42D6FEAB": {
+   "Description": "The ID of the Identity Pool",
+   "Value": {
+    "Ref": "CognitoIdentityPool2E2E339F"
+   }
+  },
+  "CognitoUserTableName647D60DB": {
+   "Description": "The name of the User DynamoDB table",
+   "Value": {
+    "Ref": "CognitoUserTable7F357C62"
+   }
+  },
+  "TaskApiEndpoint8534BABA": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "TaskApi71A863D8"
+      },
+      ".execute-api.us-east-1.",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "TaskApiDeploymentStageprod9DED2229"
+      },
+      "/"
+     ]
+    ]
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

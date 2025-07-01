@@ -34,7 +34,7 @@ yarn-error.log*
 # AWS
 .aws-sam/
 .amplify/
-amplify/
+# amplify/  # Including amplify directory in version control
 
 # CDK asset staging directory
 .cdk.staging/
