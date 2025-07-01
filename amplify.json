@@ -1,0 +1,16 @@
+{
+  "version": "3.0",
+  "appId": "amplify-poc",
+  "envName": "dev",
+  "defaultEditor": "code",
+  "frontend": "javascript",
+  "javascript": {
+    "framework": "none",
+    "config": {
+      "SourceDir": "src",
+      "DistributionDir": "dist",
+      "BuildCommand": "npm run build",
+      "StartCommand": "npm start"
+    }
+  }
+}

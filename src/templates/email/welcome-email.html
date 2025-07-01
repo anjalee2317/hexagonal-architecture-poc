@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background-color: #4CAF50; color: white; padding: 10px; text-align: center; }
+      .content { padding: 20px; background-color: #f9f9f9; }
+      .footer { font-size: 12px; text-align: center; margin-top: 20px; color: #777; }
+      .button { display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Welcome to Our Platform!</h1>
+      </div>
+      <div class="content">
+        <h2>Hello {{username}},</h2>
+        <p>Thank you for joining our platform. We're excited to have you on board!</p>
+        <p>Your account has been successfully created and confirmed.</p>
+        <p>Here's what you can do next:</p>
+        <ul>
+          <li>Complete your profile</li>
+          <li>Explore our features</li>
+          <li>Create your first task</li>
+        </ul>
+        <p style="text-align: center; margin-top: 30px;">
+          <a href="https://yourdomain.com/dashboard" class="button">Go to Dashboard</a>
+        </p>
+      </div>
+      <div class="footer">
+        <p>If you have any questions, please contact our support team.</p>
+        <p>&copy; {{currentYear}} Your Company. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>

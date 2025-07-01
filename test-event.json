@@ -1,0 +1,22 @@
+{
+  "version": "1",
+  "region": "us-east-1",
+  "userPoolId": "us-east-1_RavpYb3b1",
+  "userName": "test-invoke-user",
+  "callerContext": {
+    "awsSdkVersion": "aws-sdk-unknown-unknown",
+    "clientId": null
+  },
+  "triggerSource": "PostConfirmation_ConfirmSignUp",
+  "request": {
+    "userAttributes": {
+      "sub": "test-sub-id",
+      "email_verified": "true",
+      "cognito:user_status": "CONFIRMED",
+      "phone_number_verified": "false",
+      "phone_number": "+12065551234",
+      "email": "asbadugodahewa@gmail.com"
+    }
+  },
+  "response": {}
+}

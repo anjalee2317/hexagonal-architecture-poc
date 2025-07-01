@@ -1,0 +1,18 @@
+Welcome to Our Platform!
+
+Hello {{username}},
+
+Thank you for joining our platform. We're excited to have you on board!
+
+Your account has been successfully created and confirmed.
+
+Here's what you can do next:
+- Complete your profile
+- Explore our features
+- Create your first task
+
+Visit your dashboard at: https://yourdomain.com/dashboard
+
+If you have any questions, please contact our support team.
+
+© {{currentYear}} Your Company. All rights reserved.

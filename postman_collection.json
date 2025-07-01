@@ -1,0 +1,786 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6",
+    "name": "Amplify Gen 2 Hexagonal Architecture PoC",
+    "description": "A comprehensive collection for testing the AWS Amplify Gen 2 Hexagonal Architecture PoC application",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://f4brxi494m.execute-api.us-east-1.amazonaws.com/prod",
+      "type": "string",
+      "description": "Base URL for the API Gateway endpoint (for task API)"
+    },
+    {
+      "key": "region",
+      "value": "us-east-1",
+      "type": "string",
+      "description": "AWS region where your Cognito User Pool is deployed"
+    },
+    {
+      "key": "userPoolId",
+      "value": "us-east-1_RavpYb3b1",
+      "type": "string",
+      "description": "Cognito User Pool ID from CloudFormation outputs"
+    },
+    {
+      "key": "clientId",
+      "value": "5d4prm92sno68iofpjo0u0ul8c",
+      "type": "string",
+      "description": "Cognito User Pool Client ID from CloudFormation outputs"
+    },
+    {
+      "key": "idToken",
+      "value": "",
+      "type": "string",
+      "description": "ID token from Cognito authentication"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string",
+      "description": "Access token from Cognito authentication"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string",
+      "description": "Refresh token from Cognito authentication"
+    },
+    {
+      "key": "username",
+      "value": "testuser",
+      "type": "string",
+      "description": "Username for authentication"
+    },
+    {
+      "key": "email",
+      "value": "testuser@example.com",
+      "type": "string",
+      "description": "Email for authentication"
+    },
+    {
+      "key": "password",
+      "value": "Password123!@#",
+      "type": "string",
+      "description": "Password for authentication"
+    },
+    {
+      "key": "session",
+      "value": "",
+      "type": "string",
+      "description": "Session for MFA challenge"
+    },
+    {
+      "key": "taskId",
+      "value": "",
+      "type": "string",
+      "description": "ID of a created task"
+    },
+    {
+      "key": "fromEmail",
+      "value": "anjalee@smashtaps.com",
+      "type": "string",
+      "description": "Verified SES sender email address"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication (Cognito API)",
+      "item": [
+        {
+          "name": "Sign Up",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-amz-json-1.1"
+              },
+              {
+                "key": "X-Amz-Target",
+                "value": "AWSCognitoIdentityProviderService.SignUp"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ClientId\": \"{{clientId}}\",\n  \"Username\": \"{{username}}\",\n  \"Password\": \"{{password}}\",\n  \"UserAttributes\": [\n    {\n      \"Name\": \"email\",\n      \"Value\": \"{{email}}\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "https://cognito-idp.{{region}}.amazonaws.com",
+              "protocol": "https",
+              "host": ["cognito-idp", "{{region}}", "amazonaws", "com"]
+            },
+            "description": "Sign up a new user"
+          },
+          "response": []
+        },
+        {
+          "name": "Confirm Sign Up",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-amz-json-1.1"
+              },
+              {
+                "key": "X-Amz-Target",
+                "value": "AWSCognitoIdentityProviderService.ConfirmSignUp"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ClientId\": \"{{clientId}}\",\n  \"Username\": \"{{username}}\",\n  \"ConfirmationCode\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "https://cognito-idp.{{region}}.amazonaws.com",
+              "protocol": "https",
+              "host": ["cognito-idp", "{{region}}", "amazonaws", "com"]
+            },
+            "description": "Confirm user registration with verification code"
+          },
+          "response": []
+        },
+        {
+          "name": "Resend Confirmation Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-amz-json-1.1"
+              },
+              {
+                "key": "X-Amz-Target",
+                "value": "AWSCognitoIdentityProviderService.ResendConfirmationCode"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ClientId\": \"{{clientId}}\",\n  \"Username\": \"{{username}}\"\n}"
+            },
+            "url": {
+              "raw": "https://cognito-idp.{{region}}.amazonaws.com",
+              "protocol": "https",
+              "host": ["cognito-idp", "{{region}}", "amazonaws", "com"]
+            },
+            "description": "Resend the confirmation code for user registration"
+          },
+          "response": []
+        },
+        {
+          "name": "Initiate Auth (Sign In)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (responseJson.AuthenticationResult) {",
+                  "    pm.collectionVariables.set('idToken', responseJson.AuthenticationResult.IdToken);",
+                  "    pm.collectionVariables.set('accessToken', responseJson.AuthenticationResult.AccessToken);",
+                  "    pm.collectionVariables.set('refreshToken', responseJson.AuthenticationResult.RefreshToken);",
+                  "}",
+                  "if (responseJson.Session) {",
+                  "    pm.collectionVariables.set('session', responseJson.Session);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-amz-json-1.1"
+              },
+              {
+                "key": "X-Amz-Target",
+                "value": "AWSCognitoIdentityProviderService.InitiateAuth"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"AuthFlow\": \"USER_PASSWORD_AUTH\",\n  \"ClientId\": \"{{clientId}}\",\n  \"AuthParameters\": {\n    \"USERNAME\": \"{{username}}\",\n    \"PASSWORD\": \"{{password}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "https://cognito-idp.{{region}}.amazonaws.com",
+              "protocol": "https",
+              "host": ["cognito-idp", "{{region}}", "amazonaws", "com"]
+            },
+            "description": "Sign in a user and get authentication tokens"
+          },
+          "response": []
+        },
+        {
+          "name": "Respond to Auth Challenge (MFA)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (responseJson.AuthenticationResult) {",
+                  "    pm.collectionVariables.set('idToken', responseJson.AuthenticationResult.IdToken);",
+                  "    pm.collectionVariables.set('accessToken', responseJson.AuthenticationResult.AccessToken);",
+                  "    pm.collectionVariables.set('refreshToken', responseJson.AuthenticationResult.RefreshToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-amz-json-1.1"
+              },
+              {
+                "key": "X-Amz-Target",
+                "value": "AWSCognitoIdentityProviderService.RespondToAuthChallenge"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ChallengeName\": \"SOFTWARE_TOKEN_MFA\",\n  \"ClientId\": \"{{clientId}}\",\n  \"ChallengeResponses\": {\n    \"USERNAME\": \"{{username}}\",\n    \"SOFTWARE_TOKEN_MFA_CODE\": \"123456\"\n  },\n  \"Session\": \"{{session}}\"\n}"
+            },
+            "url": {
+              "raw": "https://cognito-idp.{{region}}.amazonaws.com",
+              "protocol": "https",
+              "host": ["cognito-idp", "{{region}}", "amazonaws", "com"]
+            },
+            "description": "Respond to MFA challenge during sign in"
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-amz-json-1.1"
+              },
+              {
+                "key": "X-Amz-Target",
+                "value": "AWSCognitoIdentityProviderService.ForgotPassword"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ClientId\": \"{{clientId}}\",\n  \"Username\": \"{{username}}\"\n}"
+            },
+            "url": {
+              "raw": "https://cognito-idp.{{region}}.amazonaws.com",
+              "protocol": "https",
+              "host": ["cognito-idp", "{{region}}", "amazonaws", "com"]
+            },
+            "description": "Initiate password reset process"
+          },
+          "response": []
+        },
+        {
+          "name": "Confirm Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-amz-json-1.1"
+              },
+              {
+                "key": "X-Amz-Target",
+                "value": "AWSCognitoIdentityProviderService.ConfirmForgotPassword"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ClientId\": \"{{clientId}}\",\n  \"Username\": \"{{username}}\",\n  \"ConfirmationCode\": \"123456\",\n  \"Password\": \"NewPassword123!@#\"\n}"
+            },
+            "url": {
+              "raw": "https://cognito-idp.{{region}}.amazonaws.com",
+              "protocol": "https",
+              "host": ["cognito-idp", "{{region}}", "amazonaws", "com"]
+            },
+            "description": "Complete password reset with confirmation code"
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-amz-json-1.1"
+              },
+              {
+                "key": "X-Amz-Target",
+                "value": "AWSCognitoIdentityProviderService.ChangePassword"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"PreviousPassword\": \"{{password}}\",\n  \"ProposedPassword\": \"NewPassword123!@#\"\n}"
+            },
+            "url": {
+              "raw": "https://cognito-idp.{{region}}.amazonaws.com",
+              "protocol": "https",
+              "host": ["cognito-idp", "{{region}}", "amazonaws", "com"]
+            },
+            "description": "Change password for authenticated user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-amz-json-1.1"
+              },
+              {
+                "key": "X-Amz-Target",
+                "value": "AWSCognitoIdentityProviderService.GetUser"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "https://cognito-idp.{{region}}.amazonaws.com",
+              "protocol": "https",
+              "host": ["cognito-idp", "{{region}}", "amazonaws", "com"]
+            },
+            "description": "Get current authenticated user information"
+          },
+          "response": []
+        },
+        {
+          "name": "Sign Out",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-amz-json-1.1"
+              },
+              {
+                "key": "X-Amz-Target",
+                "value": "AWSCognitoIdentityProviderService.GlobalSignOut"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "https://cognito-idp.{{region}}.amazonaws.com",
+              "protocol": "https",
+              "host": ["cognito-idp", "{{region}}", "amazonaws", "com"]
+            },
+            "description": "Sign out the current user"
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Tokens",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (responseJson.AuthenticationResult) {",
+                  "    pm.collectionVariables.set('idToken', responseJson.AuthenticationResult.IdToken);",
+                  "    pm.collectionVariables.set('accessToken', responseJson.AuthenticationResult.AccessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-amz-json-1.1"
+              },
+              {
+                "key": "X-Amz-Target",
+                "value": "AWSCognitoIdentityProviderService.InitiateAuth"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"AuthFlow\": \"REFRESH_TOKEN_AUTH\",\n  \"ClientId\": \"{{clientId}}\",\n  \"AuthParameters\": {\n    \"REFRESH_TOKEN\": \"{{refreshToken}}\",\n    \"SECRET_HASH\": \"{{secretHash}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "https://cognito-idp.{{region}}.amazonaws.com",
+              "protocol": "https",
+              "host": ["cognito-idp", "{{region}}", "amazonaws", "com"]
+            },
+            "description": "Refresh authentication tokens using refresh token"
+          },
+          "response": []
+        },
+        {
+          "name": "Associate Software Token (Setup TOTP)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (responseJson.SecretCode) {",
+                  "    console.log('Secret Code for TOTP setup: ' + responseJson.SecretCode);",
+                  "    pm.collectionVariables.set('secretCode', responseJson.SecretCode);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-amz-json-1.1"
+              },
+              {
+                "key": "X-Amz-Target",
+                "value": "AWSCognitoIdentityProviderService.AssociateSoftwareToken"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"AccessToken\": \"{{accessToken}}\"\n}"
+            },
+            "url": {
+              "raw": "https://cognito-idp.{{region}}.amazonaws.com",
+              "protocol": "https",
+              "host": ["cognito-idp", "{{region}}", "amazonaws", "com"]
+            },
+            "description": "Set up TOTP MFA for a user"
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Software Token (Verify TOTP)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-amz-json-1.1"
+              },
+              {
+                "key": "X-Amz-Target",
+                "value": "AWSCognitoIdentityProviderService.VerifySoftwareToken"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"AccessToken\": \"{{accessToken}}\",\n  \"UserCode\": \"123456\",\n  \"FriendlyDeviceName\": \"My Device\"\n}"
+            },
+            "url": {
+              "raw": "https://cognito-idp.{{region}}.amazonaws.com",
+              "protocol": "https",
+              "host": ["cognito-idp", "{{region}}", "amazonaws", "com"]
+            },
+            "description": "Verify and enable TOTP MFA"
+          },
+          "response": []
+        },
+        {
+          "name": "Set User MFA Preference",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-amz-json-1.1"
+              },
+              {
+                "key": "X-Amz-Target",
+                "value": "AWSCognitoIdentityProviderService.SetUserMFAPreference"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"AccessToken\": \"{{accessToken}}\",\n  \"SoftwareTokenMfaSettings\": {\n    \"Enabled\": true,\n    \"PreferredMfa\": true\n  }\n}"
+            },
+            "url": {
+              "raw": "https://cognito-idp.{{region}}.amazonaws.com",
+              "protocol": "https",
+              "host": ["cognito-idp", "{{region}}", "amazonaws", "com"]
+            },
+            "description": "Set MFA preference to TOTP"
+          },
+          "response": []
+        }
+      ],
+      "description": "Authentication operations using AWS Cognito API directly"
+    },
+    {
+      "name": "Task Management",
+      "item": [
+        {
+          "name": "Create Task",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "if (responseJson.taskId) {",
+                  "    pm.collectionVariables.set('taskId', responseJson.taskId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Complete Postman collection\",\n  \"description\": \"Create a comprehensive Postman collection for testing the API\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks"]
+            },
+            "description": "Create a new task"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Tasks",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks"]
+            },
+            "description": "Get all tasks for the current user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Task by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}"]
+            },
+            "description": "Get a specific task by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Task",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated task title\",\n  \"description\": \"Updated task description\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}"]
+            },
+            "description": "Update an existing task"
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Task",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}", "complete"]
+            },
+            "description": "Mark a task as complete"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Task",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}"]
+            },
+            "description": "Delete a task"
+          },
+          "response": []
+        }
+      ],
+      "description": "Task management operations"
+    },
+    {
+      "name": "Email Testing",
+      "item": [
+        {
+          "name": "Register User for Welcome Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-amz-json-1.1"
+              },
+              {
+                "key": "X-Amz-Target",
+                "value": "AWSCognitoIdentityProviderService.SignUp"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ClientId\": \"{{clientId}}\",\n  \"Username\": \"emailtest-{{$timestamp}}\",\n  \"Password\": \"StrongPassword123!@#\",\n  \"UserAttributes\": [\n    {\n      \"Name\": \"email\",\n      \"Value\": \"{{email}}\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "https://cognito-idp.{{region}}.amazonaws.com",
+              "protocol": "https",
+              "host": ["cognito-idp", "{{region}}", "amazonaws", "com"]
+            },
+            "description": "Register a new user to test welcome email"
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Confirm User for Welcome Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-amz-json-1.1"
+              },
+              {
+                "key": "X-Amz-Target",
+                "value": "AWSCognitoIdentityProviderService.AdminConfirmSignUp"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"UserPoolId\": \"{{userPoolId}}\",\n  \"Username\": \"emailtest-{{$timestamp}}\"\n}"
+            },
+            "url": {
+              "raw": "https://cognito-idp.{{region}}.amazonaws.com",
+              "protocol": "https",
+              "host": ["cognito-idp", "{{region}}", "amazonaws", "com"]
+            },
+            "description": "Admin confirm the user to trigger welcome email"
+          },
+          "response": []
+        },
+        {
+          "name": "Verify SES Email Identity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"EmailAddress\": \"{{email}}\"\n}"
+            },
+            "url": {
+              "raw": "https://email.{{region}}.amazonaws.com/?Action=VerifyEmailIdentity&Version=2010-12-01",
+              "protocol": "https",
+              "host": ["email", "{{region}}", "amazonaws", "com"],
+              "query": [
+                {
+                  "key": "Action",
+                  "value": "VerifyEmailIdentity"
+                },
+                {
+                  "key": "Version",
+                  "value": "2010-12-01"
+                }
+              ]
+            },
+            "description": "Verify an email address in SES (required for sandbox mode)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Email functionality testing"
+    }
+  ]
+}

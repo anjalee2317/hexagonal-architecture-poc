@@ -1,0 +1,52 @@
+{
+  "name": "amplify-poc",
+  "version": "1.0.0",
+  "description": "AWS Amplify Gen 2 PoC with Hexagonal Architecture",
+  "main": "index.js",
+  "scripts": {
+    "test": "tsc && node dist/src/test/testHexagonal.js",
+    "build": "tsc",
+    "prebuild": "rimraf dist",
+    "amplify:deploy": "node scripts/deploy-amplify.js",
+    "amplify:deploy:prod": "node scripts/deploy-amplify.js --prod",
+    "amplify:delete": "npx amplify delete",
+    "cdk:bootstrap": "npx cdk bootstrap",
+    "cdk:deploy": "npx tsc --skipLibCheck && npx cdk deploy",
+    "cdk:deploy:prod": "npx tsc --skipLibCheck && npx cdk deploy --context environment=prod",
+    "cdk:destroy": "npx cdk destroy"
+  },
+  "keywords": [
+    "amplify",
+    "aws",
+    "hexagonal",
+    "architecture"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-amplify/backend": "^0.5.0",
+    "@aws-amplify/backend-auth": "^0.5.0",
+    "@aws-amplify/backend-data": "^0.5.0",
+    "@aws-amplify/backend-function": "^0.5.0",
+    "@aws-amplify/plugin-types": "^0.5.0",
+    "@aws-sdk/client-cognito-identity": "^3.x",
+    "@aws-sdk/client-cognito-identity-provider": "^3.x",
+    "@aws-sdk/client-dynamodb": "^3.x",
+    "@aws-sdk/client-eventbridge": "^3.x",
+    "@aws-sdk/client-ses": "^3.839.0",
+    "@aws-sdk/client-sns": "^3.x",
+    "@aws-sdk/lib-dynamodb": "^3.400.0",
+    "aws-cdk-lib": "^2.80.0",
+    "constructs": "^10.2.70",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.119",
+    "@types/node": "^20.5.9",
+    "@types/uuid": "^9.0.3",
+    "aws-cdk": "^2.80.0",
+    "rimraf": "^5.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.2.2"
+  }
+}

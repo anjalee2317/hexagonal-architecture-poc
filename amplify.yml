@@ -1,0 +1,20 @@
+version: 1
+backend:
+  phases:
+    build:
+      commands:
+        - npm install
+        - npm run build
+        - npx amplify sandbox
+frontend:
+  phases:
+    build:
+      commands:
+        - echo "No frontend build required for this PoC"
+  artifacts:
+    baseDirectory: /
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
