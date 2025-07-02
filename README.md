@@ -78,11 +78,11 @@ The project follows a Hexagonal Architecture (Ports and Adapters) pattern with t
 
 More detailed documentation is available in the `docs` folder:
 
-- [Hexagonal Architecture Demo](./docs/HEXAGONAL_ARCHITECTURE_DEMO.md) - Detailed walkthrough of the architecture
-- [Presentation Guide](./docs/PRESENTATION_GUIDE.md) - Guide for presenting the architecture
-- [Cognito Authentication](./docs/COGNITO.md) - User authentication setup
-- [Post-Confirmation Triggers](./docs/POST_CONFIRMATION_TRIGGERS.md) - Cognito triggers implementation
-- [Event-Driven Notification](./docs/EVENT_DRIVEN_NOTIFICATION.md) - Event-based notification system
+- [**Amplify Backend**](./docs/AMPLIFY_BACKEND.md) - Details about the AWS Amplify Gen 2 backend infrastructure
+- [**Cognito Authentication**](./docs/COGNITO.md) - User authentication setup and configuration
+- [**Post-Confirmation Triggers**](./docs/POST_CONFIRMATION_TRIGGERS.md) - Implementation of Cognito post-confirmation Lambda triggers
+- [**Event-Driven Notification**](./docs/EVENT_DRIVEN_NOTIFICATION.md) - EventBridge-based notification system architecture
+- [**Deployment Guide**](./docs/DEPLOYMENT.md) - Comprehensive instructions for building and deploying the application
 
 ## Quick Start
 
