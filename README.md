@@ -4,8 +4,8 @@ This project demonstrates a Hexagonal Architecture implementation using AWS Ampl
 
 ## Documentation
 
-- [Backend Architecture](./AMPLIFY_BACKEND.md) - Details about the AWS backend infrastructure
-- [Deployment Guide](./DEPLOYMENT.md) - Instructions for deploying, running, and testing
+- [Backend Architecture](./docs/AMPLIFY_BACKEND.md) - Details about the AWS backend infrastructure
+- [Deployment Guide](./docs/DEPLOYMENT.md) - Instructions for deploying, running, and testing
 - [API Documentation](./openapi.yaml) - OpenAPI/Swagger documentation for the REST API
 - [Postman Collection](./postman_collection.json) - Ready-to-use Postman collection for testing
 
@@ -74,6 +74,16 @@ The project follows a Hexagonal Architecture (Ports and Adapters) pattern with t
 - Authentication flows with Cognito included in Postman collection
 - Email testing endpoints for verifying SES integration
 
+## Additional Documentation
+
+More detailed documentation is available in the `docs` folder:
+
+- [Hexagonal Architecture Demo](./docs/HEXAGONAL_ARCHITECTURE_DEMO.md) - Detailed walkthrough of the architecture
+- [Presentation Guide](./docs/PRESENTATION_GUIDE.md) - Guide for presenting the architecture
+- [Cognito Authentication](./docs/COGNITO.md) - User authentication setup
+- [Post-Confirmation Triggers](./docs/POST_CONFIRMATION_TRIGGERS.md) - Cognito triggers implementation
+- [Event-Driven Notification](./docs/EVENT_DRIVEN_NOTIFICATION.md) - Event-based notification system
+
 ## Quick Start
 
 ### Prerequisites
@@ -96,7 +106,7 @@ npx tsc --skipLibCheck
 npm run cdk:deploy
 ```
 
-See the [Deployment Guide](./DEPLOYMENT.md) for detailed instructions.
+See the [Deployment Guide](./docs/DEPLOYMENT.md) for detailed instructions.
 
 ## Backend Resources
 
@@ -109,7 +119,7 @@ After deployment, the following resources are created:
 - **EventBridge**: Event bus for notifications
 - **SES**: Email sending service for notifications
 
-See the [Backend Architecture](./AMPLIFY_BACKEND.md) for detailed information.
+See the [Backend Architecture](./docs/AMPLIFY_BACKEND.md) for detailed information.
 
 ## License
 
